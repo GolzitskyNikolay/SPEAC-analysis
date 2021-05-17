@@ -2,6 +2,9 @@ import unittest
 
 from Tests.speac_chapter_7_tests.chopin_33_3 import CHOPIN_33_3
 from speac_chapter_7.pattern_match import *
+from speacsettings import SpeacSettings
+
+speac_settings = SpeacSettings()
 
 
 class PatternMatchTest(unittest.TestCase):
@@ -16,8 +19,8 @@ class PatternMatchTest(unittest.TestCase):
         self.test_simple_matcher()
 
     def test_my_count(self):
-        self.assertEqual(True, pattern_match([2, 3], [1, 2], 1))
-        self.assertEqual(False, pattern_match([3, 4], [1, 4], 1))
+        self.assertEqual(True, pattern_match([2, 3], [1, 2], 1, speac_settings))
+        self.assertEqual(False, pattern_match([3, 4], [1, 4], 1, speac_settings))
 
     def test_get_ontimes_and_pitches(self):
         events = [[0, 74, 1000, 1, 64], [0, 76, 1500, 1, 64], [1000, 74, 500, 1, 64], [3000, 72, 750, 1, 64]]
@@ -29,7 +32,7 @@ class PatternMatchTest(unittest.TestCase):
         patterns = [-2, -2, -3, 2, 1, -1, 1, 0, 0, 0, 2, 3, 2, 2, -2, -2, -1, -2, 2,
                     3, 0, -3, 0, -2, 2, -7, 2, 1, 2, -3, -2, 2, 1, 2, 2, 1, 2, -2, -1]
 
-        self.assertEqual(7, run_pattern_match(pattern, patterns))
+        self.assertEqual(7, run_pattern_match(pattern, patterns, speac_settings))
 
     def test_interval_translator(self):
         self.assertEqual([2, 1, -62], interval_translator([60, 62, 63, 1]))
@@ -38,14 +41,14 @@ class PatternMatchTest(unittest.TestCase):
         pattern = [[0, 74], [1000, 76]]
         patterns = [[0, 74], [1000, 76], [0, 74], [-1, -2]]
         result = 1
-        self.assertEqual(result, find_matchings(pattern, patterns))
+        self.assertEqual(result, find_matchings(pattern, patterns, speac_settings))
 
     def test_find_the_matches(self):
-        set_pattern_size(2)
+        speac_settings.set_pattern_size(2)
         work_1 = [[0, 74], [1000, 76], [2500, 74], [3000, 72], [3750, 71], [4000, 72], [5500, 73]]
         work_2 = [[0, 74], [1000, 76], [2500, 74], [3000, 72], [3750, 71], [4000, 72], [5500, 73]]
         result = [[3, 0, [2]], [3, 2500, [-2]], [3, 3750, [1]]]
-        self.assertEqual(result, find_the_matches(work_1, work_2))
+        self.assertEqual(result, find_the_matches(work_1, work_2, speac_settings))
 
         work_1 = [[0, 74], [1000, 76], [2500, 74], [3000, 72], [3750, 71], [4000, 72], [5500, 73], [6000, 74],
                   [6750, 75], [7000, 76], [8500, 74], [9000, 72], [9750, 71], [10000, 72], [12000, 71], [13000, 72],
@@ -73,16 +76,17 @@ class PatternMatchTest(unittest.TestCase):
                   [137500, 69], [138000, 71], [138750, 72], [139000, 76], [140500, 74], [141000, 71], [141750, 72],
                   [142000, 84], [143000, 67]]
         work_2 = copy.deepcopy(work_1)
-        set_pattern_size(12)
+
+        speac_settings.set_pattern_size(12)
         result = [[4, 0, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 96000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 120000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]]]
-        self.assertEqual(result, find_the_matches(work_1, work_2))
+        self.assertEqual(result, find_the_matches(work_1, work_2, speac_settings))
 
     def test_simple_matcher(self):
         events = CHOPIN_33_3
-        set_pattern_size(2)
+        speac_settings.set_pattern_size(2)
         result = [[85, 0, [2]], [69, 2500, [-2]], [83, 3750, [1]], [83, 5500, [1]], [83, 6750, [1]], [69, 8500, [-2]],
                   [83, 9750, [1]], [83, 12000, [1]], [69, 14500, [-2]], [83, 15750, [1]], [83, 17500, [1]],
                   [26, 18750, [3]], [65, 20500, [-1]], [8, 21750, [5]], [85, 24000, [2]], [69, 26500, [-2]],
@@ -100,11 +104,11 @@ class PatternMatchTest(unittest.TestCase):
                   [69, 121000, [-2]], [65, 123000, [-1]], [83, 124000, [1]], [83, 126000, [1]], [69, 127000, [-2]],
                   [65, 129000, [-1]], [44, 130000, [-3]], [69, 133000, [-2]], [65, 135000, [-1]], [85, 136000, [2]],
                   [83, 138000, [1]], [69, 139000, [-2]], [83, 141000, [1]]]
-        self.assertEqual(result, simple_matcher(events))
+        self.assertEqual(result, simple_matcher(events, speac_settings))
 
-        set_pattern_size(12)
+        speac_settings.set_pattern_size(12)
         result = [[4, 0, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 96000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 120000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]]]
-        self.assertEqual(result, simple_matcher(CHOPIN_33_3))
+        self.assertEqual(result, simple_matcher(CHOPIN_33_3, speac_settings))

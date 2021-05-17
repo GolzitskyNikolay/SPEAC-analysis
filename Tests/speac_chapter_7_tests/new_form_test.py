@@ -2,7 +2,7 @@ import unittest
 
 from speac_chapter_7.new_form import *
 from Tests.speac_chapter_7_tests.chopin_33_3 import *
-from speac_chapter_7.pattern_match import simple_matcher, set_pattern_size
+from speacsettings import SpeacSettings
 
 BOOK_EXAMPLE = [[0, 45, 1000, 4, 55], [0, 64, 1000, 3, 55], [0, 69, 1000, 2, 55], [0, 73, 1000, 1, 55],
                 [1000, 57, 1000, 4, 55], [1000, 64, 1000, 3, 55], [1000, 69, 1000, 2, 55], [1000, 73, 500, 1, 55],
@@ -14,6 +14,7 @@ BOOK_EXAMPLE = [[0, 45, 1000, 4, 55], [0, 64, 1000, 3, 55], [0, 69, 1000, 2, 55]
                 [6000, 57, 1000, 3, 55], [6000, 64, 1000, 2, 55], [6000, 73, 1000, 1, 55], [7000, 50, 1000, 4, 55],
                 [7000, 57, 1000, 3, 55], [7000, 66, 1000, 2, 55], [7000, 74, 1000, 1, 55]]
 
+speac_settings = SpeacSettings()
 
 class NewFormTest(unittest.TestCase):
 
@@ -42,7 +43,6 @@ class NewFormTest(unittest.TestCase):
         self.test_reduce_out_close_calls()
         self.test_name_them()
         self.test_combine()
-
 
     def test_my_count(self):
         list1 = [79, 64, 48, 48, 65, 65, 50, 50]
@@ -114,7 +114,7 @@ class NewFormTest(unittest.TestCase):
                     [135000, "a1"], [136000, "a1"], [137000, "a1"], [138000, "a1"], [139000, "a1"], [140000, "a1"],
                     [141000, "c1"], [142000, "c1"], [143000, "e4"]]
 
-        captured_beats = capture_beats(CHOPIN_33_3, BEAT)
+        captured_beats = capture_beats(CHOPIN_33_3, 1000)
 
         pitches = []
         for beat in captured_beats:
@@ -147,13 +147,14 @@ class NewFormTest(unittest.TestCase):
                      [7000, "A1"], [8000, "A1"], [9000, "C1"], [10000, "C1"], [11000, "C1"], [12000, "A3"],
                      [13000, "S4"], [14000, "A1"],
                      [15000, "C2"]]
-        set_cadense_minimum(3000)
+
+        speac_settings.set_cadence_minimum(3000)
         result = [[4000, "C1"], [9000, "C1"], [14000, "A1"]]
-        self.assertEqual(result, return_best_cadences(functions))
+        self.assertEqual(result, return_best_cadences(functions, speac_settings))
 
-        captured_beats = capture_beats(CHOPIN_33_3, BEAT)
+        captured_beats = capture_beats(CHOPIN_33_3, 1000)
 
-        set_cadense_minimum(9000)
+        speac_settings.set_cadence_minimum(9000)
         pitches = []
         for beat in captured_beats:
             pitches.append(get_pitches(beat))
@@ -166,13 +167,13 @@ class NewFormTest(unittest.TestCase):
         result = [[10000, "c1"], [21000, "a1"], [33000, "c1"], [45000, "c1"], [56000, "a1"], [67000, "a1"],
                   [79000, "c1"], [90000, "c1"], [101000, "c1"], [117000, "a1"], [129000, "c1"], [141000, "c1"]]
 
-        self.assertEqual(result, return_best_cadences(functions))
+        self.assertEqual(result, return_best_cadences(functions, speac_settings))
 
     def test_cadences(self):
         music = CHOPIN_33_3
         result = [["c1", 10000], ["a1", 21000], ["c1", 33000], ["c1", 45000], ["a1", 56000], ["a1", 67000],
                   ["c1", 79000], ["c1", 90000], ["c1", 101000], ["a1", 117000], ["c1", 129000], ["c1", 141000]]
-        self.assertEqual(result, cadences(music))
+        self.assertEqual(result, cadences(music, speac_settings))
 
     def test_make_composite_rhythm(self):
         events = [[10, 1, 2, 3, 4], [10, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5], [5, 2, 3, 4, 5], [11, 2, 3, 4, 5]]
@@ -246,7 +247,7 @@ class NewFormTest(unittest.TestCase):
         self.assertEqual(result, collect_by_differences(input))
 
     def test_density(self):
-        self.assertEqual([[58, 0], [24, 58000], [62, 82000]], density(CHOPIN_33_3))
+        self.assertEqual([[58, 0], [24, 58000], [62, 82000]], density(CHOPIN_33_3, speac_settings))
 
     def test_collect_patterns(self):
         list = [85, 0, [2]]
@@ -286,7 +287,7 @@ class NewFormTest(unittest.TestCase):
                   [65, 129000, [-1]], [44, 130000, [-3]], [69, 133000, [-2]], [65, 135000, [-1]], ['a', 136000, [2]],
                   ['a', 138000, [1]], [69, 139000, [-2]], ['a', 141000, [1]]]
 
-        self.assertEqual(result, collect_patterns(list, lists, type))
+        self.assertEqual(result, collect_patterns(list, lists, type, speac_settings))
 
         list = [4, 0, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]]
         lists = [[4, 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
@@ -296,7 +297,7 @@ class NewFormTest(unittest.TestCase):
         result = [["a", 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   ["a", 96000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   ["a", 120000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]]]
-        self.assertEqual(result, collect_patterns(list, lists, type))
+        self.assertEqual(result, collect_patterns(list, lists, type, speac_settings))
 
         list = [4, 0, [8, 8, -2, -1, 1, 1, 1, 1, 1, -2, -2]]
         lists = [[4, 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
@@ -306,11 +307,11 @@ class NewFormTest(unittest.TestCase):
         result = [[4, 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 96000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   [4, 120000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]]]
-        self.assertEqual(result, collect_patterns(list, lists, type))
+        self.assertEqual(result, collect_patterns(list, lists, type, speac_settings))
 
     def test_almost_the_same_lists(self):
-        set_pattern_size(2)
-        input = simple_matcher(CHOPIN_33_3)
+        speac_settings.set_pattern_size(2)
+        input = simple_matcher(CHOPIN_33_3, speac_settings)
         result = [['a', 0, [2]], ['b', 2500, [-2]], ['a', 3750, [1]], ['a', 5500, [1]], ['a', 6750, [1]],
                   ['b', 8500, [-2]], ['a', 9750, [1]], ['a', 12000, [1]], ['b', 14500, [-2]], ['a', 15750, [1]],
                   ['a', 17500, [1]], ['a', 18750, [3]], ['b', 20500, [-1]], ['c', 21750, [5]], ['a', 24000, [2]],
@@ -330,22 +331,22 @@ class NewFormTest(unittest.TestCase):
                   ['b', 133000, [-2]], ['b', 135000, [-1]], ['a', 136000, [2]], ['a', 138000, [1]], ['b', 139000, [-2]],
                   ['a', 141000, [1]]]
 
-        self.assertEqual(result, almost_the_same_lists(input))
+        self.assertEqual(result, almost_the_same_lists(input, speac_settings))
 
     def test_evaluate_forms(self):
         result = [[["c1", 10000], ["a1", 21000], ["c1", 33000], ["c1", 45000], ["a1", 56000], ["a1", 67000],
                    ["c1", 79000], ["c1", 90000], ["c1", 101000], ["a1", 117000], ["c1", 129000], ["c1", 141000]]]
         min = 6
         max = 12
-        cadences_result = cadences(CHOPIN_33_3)
-        density_result = density(CHOPIN_33_3)
+        cadences_result = cadences(CHOPIN_33_3, speac_settings)
+        density_result = density(CHOPIN_33_3, speac_settings)
         rhythm_result = composite_rhythm(CHOPIN_33_3)
         forms = [cadences_result, density_result, rhythm_result]
         self.assertEqual(result, evaluate_forms(max, min, forms))
 
     def test_find_letters_used(self):
-        set_pattern_size(2)
-        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3))
+        speac_settings.set_pattern_size(2)
+        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3, speac_settings), speac_settings)
         self.assertEqual(['a', 'b', 'c', 'd'], find_letters_used(patterns))
 
     def test_within_range(self):
@@ -362,16 +363,16 @@ class NewFormTest(unittest.TestCase):
         other = [["a1", 21000], ["a1", 39000], ["c1", 59000], ["c1", 77000],
                  ["c1", 95000], ["a1", 117000], ["a1", 135000]]
 
-        self.assertEqual([["c1", 59000]], return_within_range(original, other, 3))
+        self.assertEqual([["c1", 59000]], return_within_range(original, other, 3, speac_settings))
 
     def test_reduce_out_close_calls(self):
-        set_pattern_size(2)
-        cadences_result = cadences(CHOPIN_33_3)
-        density_result = density(CHOPIN_33_3)
+        speac_settings.set_pattern_size(2)
+        cadences_result = cadences(CHOPIN_33_3, speac_settings)
+        density_result = density(CHOPIN_33_3, speac_settings)
         rhythm_result = composite_rhythm(CHOPIN_33_3)
-        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3))
+        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3, speac_settings), speac_settings)
         forms_result = evaluate_forms(12, 6, [cadences_result, density_result, rhythm_result])
-        self.assertEqual([[]], reduce_out_close_calls(patterns, forms_result, 3))
+        self.assertEqual([[]], reduce_out_close_calls(patterns, forms_result, 3, speac_settings))
 
     result = [['a', 0, [2]], ['b', 2500, [-2]], ['a', 3750, [1]], ['a', 5500, [1]], ['a', 6750, [1]],
               ['b', 8500, [-2]], ['a', 9750, [1]], ['a', 12000, [1]], ['b', 14500, [-2]], ['a', 15750, [1]],
@@ -393,14 +394,14 @@ class NewFormTest(unittest.TestCase):
               ['a', 141000, [1]]]
 
     def test_name_them(self):
-        set_pattern_size(2)
-        cadences_result = cadences(CHOPIN_33_3)
-        density_result = density(CHOPIN_33_3)
+        speac_settings.set_pattern_size(2)
+        cadences_result = cadences(CHOPIN_33_3, speac_settings)
+        density_result = density(CHOPIN_33_3, speac_settings)
         rhythm_result = composite_rhythm(CHOPIN_33_3)
-        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3))
+        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3, speac_settings), speac_settings)
         forms_result = evaluate_forms(12, 6, [cadences_result, density_result, rhythm_result])
         forms = [forms_result, patterns]
-        reduce_result = reduce_out_close_calls(patterns, forms_result, 3)
+        reduce_result = reduce_out_close_calls(patterns, forms_result, 3, speac_settings)
 
         input = []
         for element in forms[-1]:
@@ -418,23 +419,23 @@ class NewFormTest(unittest.TestCase):
         self.assertEqual(self.result, name_them(input, letters))
 
     def test_combine(self):
-        set_pattern_size(2)
-        cadences_result = cadences(CHOPIN_33_3)
-        density_result = density(CHOPIN_33_3)
+        speac_settings.set_pattern_size(2)
+        cadences_result = cadences(CHOPIN_33_3, speac_settings)
+        density_result = density(CHOPIN_33_3, speac_settings)
         rhythm_result = composite_rhythm(CHOPIN_33_3)
-        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3))
+        patterns = almost_the_same_lists(simple_matcher(CHOPIN_33_3, speac_settings), speac_settings)
         min = 6
         max = 12
 
         forms_result = evaluate_forms(max, min, [cadences_result, density_result, rhythm_result])
         forms_result.append(patterns)
         combine_input = forms_result
-        self.assertEqual(self.result, combine(combine_input, 3))
+        self.assertEqual(self.result, combine(combine_input, 3, speac_settings))
 
     def test_eval_combine_and_integrate_forms(self):
-        set_pattern_size(12)
-        result = [["a", 0, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]], ["a", 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
+        speac_settings.set_pattern_size(12)
+        result = [["a", 0, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
+                  ["a", 24000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   ["b", 56000], ["b", 67000], ["a", 96000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                   ["a", 120000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]]]
-        self.assertEqual(result, eval_combine_and_integrate_forms(CHOPIN_33_3, 3))
-
+        self.assertEqual(result, eval_combine_and_integrate_forms(CHOPIN_33_3, 3, speac_settings))

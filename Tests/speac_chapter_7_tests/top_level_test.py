@@ -3,7 +3,6 @@ import unittest
 from Tests.speac_chapter_7_tests.chopin_67_4 import CHOPIN_67_4
 from Tests.speac_chapter_7_tests.chopin_63_2 import CHOPIN_63_2
 from Tests.speac_chapter_7_tests.chopin_33_3 import CHOPIN_33_3
-from speac_chapter_7.pattern_match import set_pattern_size
 from speac_chapter_7.top_level import *
 
 BOOK_EXAMPLE = [[0, 45, 1000, 4, 55], [0, 64, 1000, 3, 55], [0, 69, 1000, 2, 55], [0, 73, 1000, 1, 55],
@@ -16,11 +15,12 @@ BOOK_EXAMPLE = [[0, 45, 1000, 4, 55], [0, 64, 1000, 3, 55], [0, 69, 1000, 2, 55]
                 [6000, 57, 1000, 3, 55], [6000, 64, 1000, 2, 55], [6000, 73, 1000, 1, 55], [7000, 50, 1000, 4, 55],
                 [7000, 57, 1000, 3, 55], [7000, 66, 1000, 2, 55], [7000, 74, 1000, 1, 55]]
 
+speac_settings = SpeacSettings()
+
 
 class TopLevelTest(unittest.TestCase):
 
     def test_all(self):
-
         self.test_get_the_start_beat_number()
         self.test_get_length()
         self.test_do_speac_on_phrases()
@@ -47,13 +47,13 @@ class TopLevelTest(unittest.TestCase):
         self.assertEqual(1000, get_length(phrases))
 
     def test_do_speac_on_phrases(self):
-        set_pattern_size(12)
-        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3)
+        speac_settings.set_pattern_size(12)
+        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3, speac_settings)
         second_elements = []
         for i in range(1, len(form)):
             second_elements.append(form[i][1])
-        phrased_events = break_into_phrases(CHOPIN_33_3, second_elements)
 
+        phrased_events = break_into_phrases(CHOPIN_33_3, second_elements)
         result = [[["preparation", "extension", "extension", "extension", "preparation", "extension",
                     "statement", "extension", "extension", "extension", "antecedent", "preparation",
                     "extension", "statement", "antecedent", "statement"],
@@ -110,8 +110,8 @@ class TopLevelTest(unittest.TestCase):
         self.assertEqual(result, group_form(form))
 
     def test_group_speac_lists(self):
-        set_pattern_size(2)
-        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3)
+        speac_settings.set_pattern_size(2)
+        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3, speac_settings)
 
         second_elements = []
         for i in range(1, len(form)):
@@ -195,8 +195,8 @@ class TopLevelTest(unittest.TestCase):
         self.assertEqual(result, group_speac_lists(speac_phrase_lists, grouped_form))
 
     def test_get_speac_middleground(self):
-        set_pattern_size(2)
-        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3)
+        speac_settings.set_pattern_size(2)
+        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3, speac_settings)
 
         second_elements = []
         for i in range(1, len(form)):
@@ -262,8 +262,8 @@ class TopLevelTest(unittest.TestCase):
 
         self.assertEqual(result, get_speac_middleground(speac_phrase_lists, grouped_form))
 
-        set_pattern_size(12)
-        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3)
+        speac_settings.set_pattern_size(12)
+        form = eval_combine_and_integrate_forms(CHOPIN_33_3, 3, speac_settings)
 
         second_elements = []
         for i in range(1, len(form)):
@@ -326,8 +326,8 @@ class TopLevelTest(unittest.TestCase):
                    ["b", 56000], ["b", 67000], ["a", 96000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]],
                    ["a", 120000, [2, -2, -2, -1, 1, 1, 1, 1, 1, -2, -2]]]]
 
-        set_pattern_size(12)
-        self.assertEqual(result, run_the_program(CHOPIN_33_3, 3))
+        speac_settings.set_pattern_size(12)
+        self.assertEqual(result, run_the_program(CHOPIN_33_3, 3, speac_settings))
 
     def test_number_the_elements(self):
         levels = [[["c"]], [["a", "c"], ["e", "c"]], [["p", "a"], ["a", "a"], ["e", "e"]],
@@ -344,7 +344,7 @@ class TopLevelTest(unittest.TestCase):
         self.assertEqual(result, number_the_elements(levels))
 
     def test_create_the_window_levels(self):
-        input = run_the_program(CHOPIN_33_3, 3)
+        input = run_the_program(CHOPIN_33_3, 3, speac_settings)
         result = [[["s"]], [["p", "e", "e"]], [["p", "e"], ["s", "e"], ["p", "e"]],
                   [["p", "e", "e", "e", "p", "e", "s", "e", "e", "e", "a", "p", "e", "s", "a", "s"],
                    ["p", "e", "e", "s", "e", "e", "e", "e", "e", "e", "e", "e", "p", "e", "s", "e", "e", "p", "e", "e",
@@ -358,16 +358,18 @@ class TopLevelTest(unittest.TestCase):
 
     def test_get_the_levels(self):
         result = [[["s1"]], [["p2", "e2", "e2"]], [["p3", "e3"], ["s3", "e3"], ["p3", "e3"]],
-                  [["p4", "e4", "e4", "e4", "p4", "e4", "s4", "e4", "e4", "e4", "a4", "p4", "e4", "s4", "a4", "s4"],
-                   ["p4", "e4", "e4", "s4", "e4", "e4", "e4", "e4", "e4", "e4", "e4", "e4", "p4", "e4", "s4", "e4",
+                  [["p4", "e4", "e4", "e4", "p4", "e4", "s4", "e4", "e4", "e4", "a4", "p4",
+                    "e4", "s4", "a4", "s4"],
+                   ["p4", "e4", "e4", "s4", "e4", "e4", "e4", "e4", "e4", "e4", "e4", "e4",
+                    "p4", "e4", "s4", "e4",
                     "e4", "p4", "e4", "e4", "e4", "s4", "e4", "e4", "a4"],
                    ["s4", "e4", "e4", "a4", "c4", "s4", "e4"],
-                   ["p4", "e4", "p4", "e4", "s4", "e4", "p4", "e4", "s4", "e4", "e4", "a4", "s4", "e4", "e4", "e4",
-                    "e4",
-                    "e4", "e4", "e4", "e4", "p4", "e4"],
-                   ["p4", "e4", "e4", "e4", "p4", "e4", "s4", "e4", "e4", "e4", "a4", "p4", "e4", "e4", "e4", "s4"],
-                   ["p4", "e4", "e4", "e4", "p4", "e4", "s4", "e4", "a4", "s4", "e4", "e4", "p4", "e4", "s4", "e4",
-                    "e4"]]]
+                   ["p4", "e4", "p4", "e4", "s4", "e4", "p4", "e4", "s4", "e4", "e4", "a4",
+                    "s4", "e4", "e4", "e4", "e4", "e4", "e4", "e4", "e4", "p4", "e4"],
+                   ["p4", "e4", "e4", "e4", "p4", "e4", "s4", "e4", "e4", "e4", "a4", "p4",
+                    "e4", "e4", "e4", "s4"],
+                   ["p4", "e4", "e4", "e4", "p4", "e4", "s4", "e4", "a4", "s4", "e4", "e4",
+                    "p4", "e4", "s4", "e4", "e4"]]]
 
         self.assertEqual(result, get_the_levels(CHOPIN_33_3, 3))
 
