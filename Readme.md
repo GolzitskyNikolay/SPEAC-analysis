@@ -12,7 +12,7 @@ To install the spec, run `pip install speac`
 --------------------------------------
 
 ### QUICK START
-SPEAC analysis is a hierarchical analysis in which music is considered as a series of nested contexts that range from local to medium, then large and global, and this is where we get this result. The main function of the SPEAC-analysis is `get_the_levels`.   
+SPEAC analysis is a hierarchical analysis in which music is considered as a series of nested contexts that range from local to medium, then large and global. The main function of the SPEAC-analysis is `get_the_levels`, and this is where we get this result.  
 The result of this function is a list of SPEAC analyzes of different levels, first element of the list is the global analysis (ursatz in Schenker's terms), second element of the list is the large analysis (background), third - is the middle analysis (middleground), last - is foreground.
 
 The function accepts a list of events as input, where each event includes the time the note was pressed in milliseconds, the midi number of the note, the duration (1000 - quarter, 500 - the eighth, etc.), the number of the part or instrument, and the velocity of the note:
