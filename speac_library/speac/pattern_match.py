@@ -1,6 +1,6 @@
 import copy
 
-from ..speac.speac import get_channel
+from .speac import get_channel
 
 
 def pattern_match(pattern_1, pattern_2, number_wrong_possible, speac_settings):

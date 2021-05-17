@@ -1,8 +1,8 @@
 import copy
 
-from ..speac.pattern_match import pattern_match, simple_matcher
-from ..speac.speac import remove_all
-from ..speac.speac_analysis import capture_beats
+from .pattern_match import pattern_match, simple_matcher
+from .speac import remove_all
+from .speac_analysis import capture_beats
 
 c1 = [24, 36, 48, 60, 72, 84, 96, 108, 27, 28, 39, 40, 51, 52, 63, 64, 75, 76, 87, 88, 99, 100,
       31, 43, 55, 67, 79, 91, 103]

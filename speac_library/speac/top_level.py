@@ -1,13 +1,11 @@
-from ..speac.new_form import eval_combine_and_integrate_forms
-from ..speac.speac_analysis import *
-from ..speac.speac import *
+from .new_form import eval_combine_and_integrate_forms
+from .speac_analysis import *
+from .speac import *
+from .speac_settings import SpeacSettings
 
 
 # (do-speac-on-phrases '(((0 55 1000 2 64) (0 65 1000 2 64). . .
 #     ((("preparation" "extension" "extension" "extension" "preparation" . . .
-from speac_library.speac.speac_settings import SpeacSettings
-
-
 def do_speac_on_phrases(phrases, meter):
     result = []
     phrases_copy = copy.deepcopy(phrases)
