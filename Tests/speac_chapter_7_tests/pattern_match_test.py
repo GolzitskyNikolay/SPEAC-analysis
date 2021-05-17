@@ -1,8 +1,8 @@
 import unittest
 
 from Tests.speac_chapter_7_tests.chopin_33_3 import CHOPIN_33_3
-from src.speac_chapter_7.pattern_match import *
-from src.speac_settings import SpeacSettings
+from speac.speac_chapter_7.pattern_match import *
+from speac.speac_settings import SpeacSettings
 
 speac_settings = SpeacSettings()
 

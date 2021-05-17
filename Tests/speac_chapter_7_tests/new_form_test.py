@@ -1,8 +1,8 @@
 import unittest
 
-from src.speac_chapter_7.new_form import *
+from speac.speac_chapter_7.new_form import *
 from Tests.speac_chapter_7_tests.chopin_33_3 import *
-from src.speac_settings import SpeacSettings
+from speac.speac_settings import SpeacSettings
 
 BOOK_EXAMPLE = [[0, 45, 1000, 4, 55], [0, 64, 1000, 3, 55], [0, 69, 1000, 2, 55], [0, 73, 1000, 1, 55],
                 [1000, 57, 1000, 4, 55], [1000, 64, 1000, 3, 55], [1000, 69, 1000, 2, 55], [1000, 73, 500, 1, 55],

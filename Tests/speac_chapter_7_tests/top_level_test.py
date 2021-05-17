@@ -3,7 +3,7 @@ import unittest
 from Tests.speac_chapter_7_tests.chopin_67_4 import CHOPIN_67_4
 from Tests.speac_chapter_7_tests.chopin_63_2 import CHOPIN_63_2
 from Tests.speac_chapter_7_tests.chopin_33_3 import CHOPIN_33_3
-from src.speac_chapter_7.top_level import *
+from speac.speac_chapter_7.top_level import *
 
 BOOK_EXAMPLE = [[0, 45, 1000, 4, 55], [0, 64, 1000, 3, 55], [0, 69, 1000, 2, 55], [0, 73, 1000, 1, 55],
                 [1000, 57, 1000, 4, 55], [1000, 64, 1000, 3, 55], [1000, 69, 1000, 2, 55], [1000, 73, 500, 1, 55],
