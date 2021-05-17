@@ -1,8 +1,8 @@
 import copy
 
-from speac_chapter_7.pattern_match import pattern_match, simple_matcher
-from speac_chapter_7.speac import remove_all
-from speac_chapter_7.speac_analysis import capture_beats
+from src.speac_chapter_7.pattern_match import pattern_match, simple_matcher
+from src.speac_chapter_7.speac import remove_all
+from src.speac_chapter_7.speac_analysis import capture_beats
 
 c1 = [24, 36, 48, 60, 72, 84, 96, 108, 27, 28, 39, 40, 51, 52, 63, 64, 75, 76, 87, 88, 99, 100,
       31, 43, 55, 67, 79, 91, 103]
@@ -84,12 +84,9 @@ def my_count(list1, list2):
     return count
 
 
-BEAT = 1000
-
-
-def cadences(events):
+def cadences(events, speac_settings):
     events = copy.deepcopy(events)
-    captured_beats = capture_beats(events, BEAT)
+    captured_beats = capture_beats(events, speac_settings.BEAT)
 
     pitches = []
     for beat in captured_beats:
@@ -100,7 +97,7 @@ def cadences(events):
         fun = get_function(pitch[0], pitch[1])
         functions.append(fun)
 
-    best_cadences = return_best_cadences(functions)
+    best_cadences = return_best_cadences(functions, speac_settings)
 
     result = []
     for element in best_cadences:
@@ -120,15 +117,7 @@ def next_4(lists):
         return False
 
 
-CADENSE_MINIMUM = 9000
-
-
-def set_cadense_minimum(number):
-    global CADENSE_MINIMUM
-    CADENSE_MINIMUM = number
-
-
-def return_best_cadences(function_timing_lists, distance=0, previous=None, minor_flag=0):
+def return_best_cadences(function_timing_lists, speac_settings, distance=0, previous=None, minor_flag=0):
     size = len(function_timing_lists)
     function_timing_lists = copy.deepcopy(function_timing_lists)
     result = []
@@ -140,27 +129,27 @@ def return_best_cadences(function_timing_lists, distance=0, previous=None, minor
 
         fun_1 = function[1].lower()
 
-        if (minor_flag > 0) and (fun_1 == "c2") and (distance > CADENSE_MINIMUM):
+        if (minor_flag > 0) and (fun_1 == "c2") and (distance > speac_settings.CADENCE_MINIMUM):
             result.append([function[0], "c1"])
             distance = 0
 
-        elif (minor_flag > 0) and (fun_1 == "c4") and (distance > CADENSE_MINIMUM):
+        elif (minor_flag > 0) and (fun_1 == "c4") and (distance > speac_settings.CADENCE_MINIMUM):
             result.append([function[0], "a1"])
             distance = 0
 
-        elif (previous == "a1") and (fun_1 == "c1") and (distance > CADENSE_MINIMUM):
+        elif (previous == "a1") and (fun_1 == "c1") and (distance > speac_settings.CADENCE_MINIMUM):
             result.append(function)
             distance = 0
 
-        elif (distance > CADENSE_MINIMUM) and (fun_1 == "a1") and (next_function[1].lower() != "c1"):
+        elif (distance > speac_settings.CADENCE_MINIMUM) and (fun_1 == "a1") and (next_function[1].lower() != "c1"):
             result.append(function)
             distance = 0
 
-        elif (fun_1 == "c1") and (distance > CADENSE_MINIMUM):
+        elif (fun_1 == "c1") and (distance > speac_settings.CADENCE_MINIMUM):
             result.append(function)
             distance = 0
 
-        elif (fun_1 == "a1") and (not next_4(function_timing_lists)) and (distance > CADENSE_MINIMUM):
+        elif (fun_1 == "a1") and (not next_4(function_timing_lists)) and (distance > speac_settings.CADENCE_MINIMUM):
             result.append(function)
             distance = 0
 
@@ -281,24 +270,19 @@ def collect_by_differences(density_map):
     return result
 
 
-def density(events):
-    beats = capture_beats(events, BEAT)
+def density(events, speac_settings):
+    beats = capture_beats(events, speac_settings.BEAT)
     return collect_by_differences(map_density(beats))
 
 
-INTERVALS_OFF = 2
-
-
-def collect_patterns(list, lists, type):
+def collect_patterns(list, lists, type, speac_settings):
     result = []
 
     while True:
         if len(lists) == 0:
             break
 
-        elif pattern_match(list[2],
-                           lists[0][2],
-                           INTERVALS_OFF):
+        elif pattern_match(list[2], lists[0][2], speac_settings.INTERVALS_OFF, speac_settings):
             local_result = []
             lists[0].pop(0)
             local_result.append(type)
@@ -314,7 +298,7 @@ def collect_patterns(list, lists, type):
     return result
 
 
-def almost_the_same_lists(lists):
+def almost_the_same_lists(lists, speac_settings):
     types = ["a", "b", "c", "d", "e", "f", "g", "h," "i", "j", "k"]
     result = []
 
@@ -334,9 +318,7 @@ def almost_the_same_lists(lists):
             else:
                 types_0 = None
 
-            result.append([types_0,
-                           lists[0][0],
-                           lists[0][1]])
+            result.append([types_0, lists[0][0], lists[0][1]])
 
             if len(types) != 0:
                 first_type = types.pop(0)
@@ -344,7 +326,7 @@ def almost_the_same_lists(lists):
                 first_type = None
 
             lists.pop(0)
-            lists = collect_patterns(list_0_before, lists, first_type)
+            lists = collect_patterns(list_0_before, lists, first_type, speac_settings)
     return result
 
 
@@ -409,11 +391,8 @@ def within_range(min, max, lists):
                 result.append(lists.pop(0))
 
 
-MEASURES = 8
-
-
-def return_within_range(original, other, meter):
-    amount = meter * BEAT * MEASURES
+def return_within_range(original, other, meter, speac_settings):
+    amount = meter * speac_settings.BEAT * speac_settings.MEASURES
 
     while True:
         if len(original) == 0:
@@ -423,7 +402,7 @@ def return_within_range(original, other, meter):
             other = within_range(first_original[1] - amount, first_original[1] + amount, other)
 
 
-def reduce_out_close_calls(pattern_discovery, forms, meter):
+def reduce_out_close_calls(pattern_discovery, forms, meter, speac_settings):
     result = []
     forms = copy.deepcopy(forms)
     pattern_discovery = copy.deepcopy(pattern_discovery)
@@ -433,12 +412,12 @@ def reduce_out_close_calls(pattern_discovery, forms, meter):
             return result
         else:
             first_form = forms.pop(0)
-            result.append(return_within_range(pattern_discovery, first_form, meter))
+            result.append(return_within_range(pattern_discovery, first_form, meter, speac_settings))
 
 
-def combine(forms, meter):
+def combine(forms, meter, speac_settings):
     forms = copy.deepcopy(forms)
-    reduce_result = reduce_out_close_calls(forms[1], [forms[0]], meter)
+    reduce_result = reduce_out_close_calls(forms[1], [forms[0]], meter, speac_settings)
 
     input = []
     for element in forms[-1]:
@@ -468,23 +447,23 @@ def sort_by_second_element(some_list):
 LETTERS_USED = []
 
 
-def eval_combine_and_integrate_forms(events, meter):
+def eval_combine_and_integrate_forms(events, meter, speac_settings):
     global LETTERS_USED
     LETTERS_USED = []
     events = copy.deepcopy(events)
-    cadences_result = cadences(events)
+    cadences_result = cadences(events, speac_settings)
 
-    density_result = density(events)
+    density_result = density(events, speac_settings)
 
     rhythm_result = composite_rhythm(events)
 
-    s_matcher = simple_matcher(events)
+    s_matcher = simple_matcher(events, speac_settings)
 
-    patterns = almost_the_same_lists(s_matcher)
+    patterns = almost_the_same_lists(s_matcher, speac_settings)
 
     min = round((events[-1][0] + events[-1][2]) / (meter * 1000 * 8))
     max = round((events[-1][0] + events[-1][2]) / (meter * 1000 * 4))
 
     forms_result = evaluate_forms(max, min, [cadences_result, density_result, rhythm_result])
     forms_result.append(patterns)
-    return combine(forms_result, meter)
+    return combine(forms_result, meter, speac_settings)

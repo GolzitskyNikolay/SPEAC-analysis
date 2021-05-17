@@ -1,9 +1,9 @@
 import copy
 
-
 # (get-the-speac ((0 60 1000 4 127) (0 67 1000 2 127) (0 64 1000 3 127)))
 # consequent
 import numpy
+
 
 # Запускает SPEAC, используя при этом вес и среднее значение
 # (run-speac '(0.56 0.41 0.78 0.51 1.33 0.51 1.26 0.51) 0.73)
@@ -57,7 +57,6 @@ def develop_speac(weights, average, largest, smallest):
                 previous_assignment = "antecedent"
 
         elif previous_assignment == "antecedent" and almost(weight, smallest, 0.2):
-            # Странная ветка, зачем, если она никогда не выполнится?
             if previous_assignment == "consequent":
                 result.append("extension")
             else:
@@ -149,7 +148,6 @@ def break_events_into_beats(beat, music):
 
     result = []
     for event in music:
-        # Зачем условия, если выполняется одно и то же???????????????????????????????
         if event[0] < accumulated_beat:
             for element in break_event(beat, event):
                 result.append(element)

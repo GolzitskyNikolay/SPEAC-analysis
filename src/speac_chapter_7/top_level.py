@@ -1,12 +1,13 @@
-import copy
-
-from speac_chapter_7.new_form import eval_combine_and_integrate_forms
-from speac_chapter_7.speac_analysis import *
-from speac_chapter_7.speac import *
+from src.speac_chapter_7.new_form import eval_combine_and_integrate_forms
+from src.speac_chapter_7.speac_analysis import *
+from src.speac_chapter_7.speac import *
 
 
 # (do-speac-on-phrases '(((0 55 1000 2 64) (0 65 1000 2 64). . .
 #     ((("preparation" "extension" "extension" "extension" "preparation" . . .
+from src.speac_settings import SpeacSettings
+
+
 def do_speac_on_phrases(phrases, meter):
     result = []
     phrases_copy = copy.deepcopy(phrases)
@@ -15,7 +16,7 @@ def do_speac_on_phrases(phrases, meter):
         start_beat_number = get_the_start_beat_number(phrase, meter)
         round_number = round(get_length(phrase) / 1000)
         weights = run_the_speac_weightings(phrase, start_beat_number, round_number, meter)
-        avg = round(sum(weights) / len(weights), 2)
+        avg = my_round(sum(weights) / len(weights))
         speac_res = run_speac(weights, avg)
         local_res = [speac_res, avg]
         result.append(local_res)
@@ -125,7 +126,7 @@ def get_speac_middleground(speac_lists, grouped_form):
 
         sum = 0
         for element in test:
-            sum+= element
+            sum += element
 
         test_average = my_round(sum / len(test))
         speac_result = run_speac(test, test_average)
@@ -144,9 +145,9 @@ def get_speac_background(speac_middleground):
     return result
 
 
-def run_the_program(events, meter):
+def run_the_program(events, meter, speac_settings):
     events = copy.deepcopy(events)
-    form = eval_combine_and_integrate_forms(events, meter)
+    form = eval_combine_and_integrate_forms(events, meter, speac_settings)
 
     second_elements = []
     for i in range(1, len(form)):
@@ -223,6 +224,6 @@ def create_the_window_levels(levels_from_the_program):
     return result
 
 
-def get_the_levels(events, meter):
-    output = run_the_program(events, meter)
+def get_the_levels(events, meter, speac_settings=SpeacSettings()):
+    output = run_the_program(events, meter, speac_settings=speac_settings)
     return number_the_elements(create_the_window_levels(output))

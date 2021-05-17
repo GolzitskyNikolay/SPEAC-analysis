@@ -1,35 +1,28 @@
 import copy
 
-from speac_chapter_7.speac import get_channel
-
-AMOUNT_OFF = 1
+from src.speac_chapter_7.speac import get_channel
 
 
-def pattern_match(pattern_1, pattern_2, number_wrong_possible):
+def pattern_match(pattern_1, pattern_2, number_wrong_possible, speac_settings):
     pattern_1 = copy.deepcopy(pattern_1)
     pattern_2 = copy.deepcopy(pattern_2)
 
-    # print(pattern_1, pattern_2, number_wrong_possible)
     if pattern_1 == [] and pattern_2 == []:
-        # print("1")
         return True
 
     elif number_wrong_possible == -1 \
-            or abs(pattern_1[0] - pattern_2[0]) > AMOUNT_OFF:
-        # print("2")
+            or abs(pattern_1[0] - pattern_2[0]) > speac_settings.AMOUNT_OFF:
         return False
 
     elif pattern_1[0] != pattern_2[0]:
-        # print("3")
         pattern_1.pop(0)
         pattern_2.pop(0)
-        return pattern_match(pattern_1, pattern_2, number_wrong_possible - 1)
+        return pattern_match(pattern_1, pattern_2, number_wrong_possible - 1, speac_settings)
 
     else:
-        # print("4")
         pattern_1.pop(0)
         pattern_2.pop(0)
-        return pattern_match(pattern_1, pattern_2, number_wrong_possible)
+        return pattern_match(pattern_1, pattern_2, number_wrong_possible, speac_settings)
 
 
 def get_ontimes_and_pitches(events):
@@ -44,10 +37,7 @@ def get_ontimes_and_pitches(events):
     return result
 
 
-INTERVALS_OFF = 2
-
-
-def run_pattern_match(pattern, patterns):
+def run_pattern_match(pattern, patterns, speac_settings):
     matches = 0
 
     while True:
@@ -58,7 +48,7 @@ def run_pattern_match(pattern, patterns):
             return matches
 
         else:
-            if pattern_match(pattern, first_n_patterns, INTERVALS_OFF):
+            if pattern_match(pattern, first_n_patterns, speac_settings.INTERVALS_OFF, speac_settings):
                 patterns.pop(0)
                 matches += 1
 
@@ -83,19 +73,15 @@ def interval_translator(midi_list):
 DURATION = "no"
 
 
-def find_matchings(pattern, patterns):
+def find_matchings(pattern, patterns, speac_settings):
     translator_input = []
     for p in pattern:
-        # print(p)
         if DURATION == "yes":
             translator_input.append(p[2])
         else:
             translator_input.append(p[1])
 
-    # print(translator_input)
-
     translator_res = interval_translator(translator_input)
-    # print(translator_res)
 
     translator_input = []
     for p in patterns:
@@ -104,34 +90,24 @@ def find_matchings(pattern, patterns):
         else:
             translator_input.append(p[1])
     translator_res_2 = interval_translator(translator_input)
-    # print(translator_res_2)
 
-    result = run_pattern_match(translator_res, translator_res_2)
-    # print(result)
+    result = run_pattern_match(translator_res, translator_res_2, speac_settings)
     return result
 
 
-PATTERN_SIZE = 12
-def set_pattern_size(number):
-    global PATTERN_SIZE
-    PATTERN_SIZE = number
-
-THRESHOLD = 2
-
-
-def find_the_matches(work_1, work_2):
+def find_the_matches(work_1, work_2, speac_settings):
     result = []
 
     while True:
-        if len(work_1) < PATTERN_SIZE:
+        if len(work_1) < speac_settings.PATTERN_SIZE:
             break
 
         else:
-            patterns = work_1[:PATTERN_SIZE]
-            other_patterns = work_1[PATTERN_SIZE:]
-            test = find_matchings(patterns, work_2)
+            patterns = work_1[:speac_settings.PATTERN_SIZE]
+            other_patterns = work_1[speac_settings.PATTERN_SIZE:]
+            test = find_matchings(patterns, work_2, speac_settings)
 
-            if test > THRESHOLD:
+            if test > speac_settings.THRESHOLD:
                 translator_input = []
                 for p in patterns:
                     translator_input.append(p[1])
@@ -145,12 +121,9 @@ def find_the_matches(work_1, work_2):
     return result
 
 
-MATCHING_LINE = 1
-
-
-def simple_matcher(events):
+def simple_matcher(events, speac_settings):
     events.sort()
-    channel = get_channel(MATCHING_LINE, events)
+    channel = get_channel(speac_settings.MATCHING_LINE, events)
     ordered_and_channeled_events = get_ontimes_and_pitches(channel)
-    result = find_the_matches(ordered_and_channeled_events, ordered_and_channeled_events)
+    result = find_the_matches(ordered_and_channeled_events, ordered_and_channeled_events, speac_settings)
     return result
