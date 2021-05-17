@@ -1,11 +1,11 @@
 import unittest
 import coverage
 
-from Tests.speac_chapter_7_tests.new_form_test import NewFormTest
-from Tests.speac_chapter_7_tests.pattern_match_test import PatternMatchTest
-from Tests.speac_chapter_7_tests.speac_analysis_test import SPEAC_analysis_test
-from Tests.speac_chapter_7_tests.speac_test import TestSPEAC
-from Tests.speac_chapter_7_tests.top_level_test import TopLevelTest
+from speac_tests.speac_chapter_7_tests.new_form_test import NewFormTest
+from speac_tests.speac_chapter_7_tests.pattern_match_test import PatternMatchTest
+from speac_tests.speac_chapter_7_tests.speac_analysis_test import SPEAC_analysis_test
+from speac_tests.speac_chapter_7_tests.speac_test import TestSPEAC
+from speac_tests.speac_chapter_7_tests.top_level_test import TopLevelTest
 
 
 class CoverageTest(unittest.TestCase):
@@ -20,7 +20,7 @@ class CoverageTest(unittest.TestCase):
         print("Testing pattern_match")
         PatternMatchTest().test_all()
 
-        print("Testing speac_analysis")
+        print("Testing speac_library")
         SPEAC_analysis_test().test_all()
 
         print("Testing speac_test")
@@ -31,4 +31,4 @@ class CoverageTest(unittest.TestCase):
 
         cov.stop()
         cov.save()
-        cov.report(show_missing=True, include="*\\speac_chapter_7\\*")
+        cov.report(show_missing=True, include="*\\speac\\*")

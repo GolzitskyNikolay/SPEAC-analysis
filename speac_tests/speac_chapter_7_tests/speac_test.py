@@ -1,7 +1,7 @@
 import unittest
 
-from Tests.speac_chapter_7_tests.chopin_33_3 import CHOPIN_33_3
-from speac.speac_chapter_7.speac import *
+from speac_library.speac.speac import *
+from speac_tests.speac_chapter_7_tests.chopin_33_3 import CHOPIN_33_3
 
 
 class TestSPEAC(unittest.TestCase):

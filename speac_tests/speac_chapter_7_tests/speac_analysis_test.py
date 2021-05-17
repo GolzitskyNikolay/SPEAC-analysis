@@ -1,6 +1,6 @@
 import unittest
 
-from speac.speac_chapter_7.speac_analysis import *
+from speac_library.speac.speac_analysis import *
 
 BOOK_EXAMPLE = [[0, 45, 1000, 4, 55], [0, 64, 1000, 3, 55], [0, 69, 1000, 2, 55], [0, 73, 1000, 1, 55],
                 [1000, 57, 1000, 4, 55], [1000, 64, 1000, 3, 55], [1000, 69, 1000, 2, 55], [1000, 73, 500, 1, 55],
