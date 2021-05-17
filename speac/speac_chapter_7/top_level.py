@@ -5,7 +5,7 @@ from speac.speac_chapter_7.speac import *
 
 # (do-speac-on-phrases '(((0 55 1000 2 64) (0 65 1000 2 64). . .
 #     ((("preparation" "extension" "extension" "extension" "preparation" . . .
-from speac.speac_settings import SpeacSettings
+from speac.speac_chapter_7.speac_settings import SpeacSettings
 
 
 def do_speac_on_phrases(phrases, meter):
