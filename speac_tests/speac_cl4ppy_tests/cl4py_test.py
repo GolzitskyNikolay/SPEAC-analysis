@@ -1,4 +1,3 @@
-import copy
 import glob
 import unittest
 
@@ -54,15 +53,19 @@ class BindingsTest(unittest.TestCase):
 
         self.test_get_the_levels()
 
+        print("\n")
         cov.stop()
         cov.save()
         cov.report(show_missing=True, include="*/speac/*")
 
     def test_get_the_levels(self):
-        meter = 3
+        python_input = CHOPIN_33_3
+        lisp_input = "chopin-33-3"
+
+        meter = 4
         beat = 1000
         cadence_minimum = 9000
-        intevals_off = 2
+        intervals_off = 2
         measures = 8
         threshold = 2
         pattern_size = 12
@@ -72,16 +75,22 @@ class BindingsTest(unittest.TestCase):
         speac_settings = SpeacSettings()
         speac_settings.set_beat(beat)
         speac_settings.set_cadence_minimum(cadence_minimum)
-        speac_settings.set_intervals_off(intevals_off)
+        speac_settings.set_intervals_off(intervals_off)
         speac_settings.set_measures(measures)
         speac_settings.set_threshold(threshold)
         speac_settings.set_pattern_size(pattern_size)
         speac_settings.set_amount_off(amount_off)
         speac_settings.set_matching_line(matching_line)
 
-        python_input = CHOPIN_33_3
-        lisp_input = "chopin-33-3"
         set_lisp_variable("*meter*", meter)
+        set_lisp_variable("*beat*", beat)
+        set_lisp_variable("*cadence_minimum*", cadence_minimum)
+        set_lisp_variable("*intervals_off*", intervals_off)
+        set_lisp_variable("*measures*", measures)
+        set_lisp_variable("*threshold*", threshold)
+        set_lisp_variable("*pattern_size*", pattern_size)
+        set_lisp_variable("*amount_off*", amount_off)
+        set_lisp_variable("*matching_line*", matching_line)
 
         try:
             lisp_eval = lisp.eval(("get-the-levels", lisp_input))
@@ -89,16 +98,16 @@ class BindingsTest(unittest.TestCase):
 
         except Exception as lisp_exception:
             lisp_result = "Error"
-            # print("++++++++++++++++++++++++++++++++++++++++++")
-            # print("Exception in Lisp result:", lisp_exception)
-            # print("++++++++++++++++++++++++++++++++++++++++++")
+            print("++++++++++++++++++++++++++++++++++++++++++")
+            print("Exception in Lisp result:", lisp_exception)
+            print("++++++++++++++++++++++++++++++++++++++++++")
 
         try:
             python_result = get_the_levels(python_input, meter, speac_settings)
 
         except Exception as python_exception:
             python_result = "Error"
-            # print("Exception in Python result: ", python_exception)
+            print("Exception in Python result: ", python_exception)
 
         print("  Lisp input = ", lisp_input, "\nPython input = ", python_input,
               "\n  Lisp result = ", lisp_result, "\nPython result = ", python_result)
