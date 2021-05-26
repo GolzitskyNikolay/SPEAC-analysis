@@ -7,6 +7,7 @@ import os
 import coverage
 
 from speac_library.speac.chopin_33_3 import CHOPIN_33_3
+from speac_library.speac.new_form import evaluate_forms
 from speac_library.speac.speac_settings import SpeacSettings
 from speac_library.speac.top_level import get_the_levels
 
@@ -43,6 +44,14 @@ def set_lisp_variable(variable_name, number):
     print("Lisp variable " + variable_name + " = ", number)
 
 
+def python_input_to_lisp(python_input):
+    lisp_input = str(python_input).replace("[", "(").replace("]", ")").replace(",", "").replace("'", "")
+    if len(lisp_input) > 0 and lisp_input[0] == "(":
+        return "'" + lisp_input
+    else:
+        return lisp_input
+
+
 class BindingsTest(unittest.TestCase):
 
     def test_all(self):
@@ -51,7 +60,8 @@ class BindingsTest(unittest.TestCase):
 
         load_files()
 
-        self.test_get_the_levels()
+        # self.test_get_the_levels()
+        self.test_evaluate_forms()
 
         print("\n")
         cov.stop()
@@ -102,12 +112,12 @@ class BindingsTest(unittest.TestCase):
             print("Exception in Lisp result:", lisp_exception)
             print("++++++++++++++++++++++++++++++++++++++++++")
 
-        try:
-            python_result = get_the_levels(python_input, meter, speac_settings)
+        # try:
+        python_result = get_the_levels(python_input, meter, speac_settings)
 
-        except Exception as python_exception:
-            python_result = "Error"
-            print("Exception in Python result: ", python_exception)
+        # except Exception as python_exception:
+        #     python_result = "Error"
+        #     print("Exception in Python result: ", python_exception)
 
         print("  Lisp input = ", lisp_input, "\nPython input = ", python_input,
               "\n  Lisp result = ", lisp_result, "\nPython result = ", python_result)
@@ -116,6 +126,24 @@ class BindingsTest(unittest.TestCase):
             self.assertEqual(python_result, lisp_result)
         except AssertionError:
             raise AssertionError("Data aren't equal")
+
+    def test_evaluate_forms(self):
+        cadences_result = [['c1', 10000], ['a1', 21000], ['c1', 33000], ['c1', 45000], ['a1', 56000],
+                           ['a1', 67000], ['c1', 79000], ['c1', 90000], ['c1', 101000], ['a1', 117000],
+                           ['c1', 129000], ['c1', 141000]]
+
+        density_result = [[58, 0], [24, 58000], [62, 82000]]
+        rhythm_result = [[212, 0]]
+        max = 9
+        min = 4
+        python_input = [cadences_result, density_result, rhythm_result]
+        lisp_input = python_input_to_lisp(python_input)
+
+        print("lisp_input = ", lisp_input)
+        print("python_input = ", python_input)
+
+        print(evaluate_forms(max, min, python_input))
+        print(lisp.eval(("evaluate-forms", max, min, lisp_input)))
 
 
 if __name__ == '__main__':
