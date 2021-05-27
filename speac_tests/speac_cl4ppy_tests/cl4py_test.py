@@ -1,13 +1,11 @@
 import glob
 import unittest
-
 import cl4py
 import os
-
 import coverage
+import emoji
 
 from speac_library.speac.chopin_33_3 import CHOPIN_33_3
-from speac_library.speac.new_form import evaluate_forms
 from speac_library.speac.speac_settings import SpeacSettings
 from speac_library.speac.top_level import get_the_levels
 
@@ -40,8 +38,7 @@ def cl4py_elements_to_python(cl4py_element):
 
 
 def set_lisp_variable(variable_name, number):
-    lisp.eval(("setq", variable_name, number))
-    print("Lisp variable " + variable_name + " = ", number)
+    lisp.eval(("setq", variable_name.upper(), number))
 
 
 def python_input_to_lisp(python_input):
@@ -52,6 +49,19 @@ def python_input_to_lisp(python_input):
         return lisp_input
 
 
+def create_lisp_input(variable_name, variable_value):
+    file = open("./lisp_files/my_variables.lisp", "w+")
+    file.write("(defVar " + variable_name + " " + variable_value + ")")
+    file.close()
+
+    file_name = os.path.join(os.path.dirname(__file__), "lisp_files/my_variables.lisp")
+    file_name = file_name.replace("\\", "/")
+
+    lisp.eval(("load", '"' + file_name + '"'))
+    print(file_name, " is loaded")
+    os.remove("./lisp_files/my_variables.lisp")
+
+
 class BindingsTest(unittest.TestCase):
 
     def test_all(self):
@@ -60,8 +70,7 @@ class BindingsTest(unittest.TestCase):
 
         load_files()
 
-        # self.test_get_the_levels()
-        self.test_evaluate_forms()
+        self.test_get_the_levels()
 
         print("\n")
         cov.stop()
@@ -70,17 +79,19 @@ class BindingsTest(unittest.TestCase):
 
     def test_get_the_levels(self):
         python_input = CHOPIN_33_3
-        lisp_input = "chopin-33-3"
+        lisp_input = "LISP-INPUT"
 
-        meter = 4
+        create_lisp_input("LISP-INPUT", python_input_to_lisp(python_input))
+
+        meter = 3
         beat = 1000
         cadence_minimum = 9000
         intervals_off = 2
         measures = 8
-        threshold = 2
+        threshold = 3
         pattern_size = 12
         amount_off = 1
-        matching_line = 1
+        matching_line = 1  # differs when 2, fix it later
 
         speac_settings = SpeacSettings()
         speac_settings.set_beat(beat)
@@ -92,15 +103,15 @@ class BindingsTest(unittest.TestCase):
         speac_settings.set_amount_off(amount_off)
         speac_settings.set_matching_line(matching_line)
 
-        set_lisp_variable("*meter*", meter)
-        set_lisp_variable("*beat*", beat)
-        set_lisp_variable("*cadence_minimum*", cadence_minimum)
-        set_lisp_variable("*intervals_off*", intervals_off)
-        set_lisp_variable("*measures*", measures)
-        set_lisp_variable("*threshold*", threshold)
-        set_lisp_variable("*pattern_size*", pattern_size)
-        set_lisp_variable("*amount_off*", amount_off)
-        set_lisp_variable("*matching_line*", matching_line)
+        set_lisp_variable("*METER*", meter)
+        set_lisp_variable("*BEAT*", beat)
+        set_lisp_variable("*CADENCE-MINIMUM*", cadence_minimum)
+        set_lisp_variable("*INTERVALS-OFF*", intervals_off)
+        set_lisp_variable("*MEASURES*", measures)
+        set_lisp_variable("*THRESHOLD*", threshold)
+        set_lisp_variable("*PATTERN-SIZE*", pattern_size)
+        set_lisp_variable("*AMOUNT-OFF*", amount_off)
+        set_lisp_variable("*MATCHING-LINE*", matching_line)
 
         try:
             lisp_eval = lisp.eval(("get-the-levels", lisp_input))
@@ -108,42 +119,28 @@ class BindingsTest(unittest.TestCase):
 
         except Exception as lisp_exception:
             lisp_result = "Error"
-            print("++++++++++++++++++++++++++++++++++++++++++")
-            print("Exception in Lisp result:", lisp_exception)
-            print("++++++++++++++++++++++++++++++++++++++++++")
 
-        # try:
-        python_result = get_the_levels(python_input, meter, speac_settings)
+        try:
+            python_result = get_the_levels(python_input, meter, speac_settings)
 
-        # except Exception as python_exception:
-        #     python_result = "Error"
-        #     print("Exception in Python result: ", python_exception)
-
-        print("  Lisp input = ", lisp_input, "\nPython input = ", python_input,
-              "\n  Lisp result = ", lisp_result, "\nPython result = ", python_result)
+        except Exception as python_exception:
+            python_result = "Error"
 
         try:
             self.assertEqual(python_result, lisp_result)
         except AssertionError:
-            raise AssertionError("Data aren't equal")
-
-    def test_evaluate_forms(self):
-        cadences_result = [['c1', 10000], ['a1', 21000], ['c1', 33000], ['c1', 45000], ['a1', 56000],
-                           ['a1', 67000], ['c1', 79000], ['c1', 90000], ['c1', 101000], ['a1', 117000],
-                           ['c1', 129000], ['c1', 141000]]
-
-        density_result = [[58, 0], [24, 58000], [62, 82000]]
-        rhythm_result = [[212, 0]]
-        max = 9
-        min = 4
-        python_input = [cadences_result, density_result, rhythm_result]
-        lisp_input = python_input_to_lisp(python_input)
-
-        print("lisp_input = ", lisp_input)
-        print("python_input = ", python_input)
-
-        print(evaluate_forms(max, min, python_input))
-        print(lisp.eval(("evaluate-forms", max, min, lisp_input)))
+            print("\n")
+            for i in range(1, 50):
+                print(emoji.emojize(":tired_face:"), end="")
+            print("\nERROR!!! Data aren't equal:\nPython and LISP input = ", python_input)
+            print("  Lisp result = ", lisp_result, "\nPython result = ", python_result)
+            variables = ["*METER*", "*BEAT*", "*CADENCE-MINIMUM*", "*INTERVALS-OFF*", "*MEASURES*",
+                         "*THRESHOLD*", "*PATTERN-SIZE*", "*AMOUNT-OFF*", "*MATCHING-LINE*"]
+            for variable in variables:
+                print("Lisp variable " + variable.upper() + " = ", lisp.eval(cl4py.Symbol(variable.upper())))
+            for i in range(1, 50):
+                print(emoji.emojize(":tired_face:"), end="")
+            print("\n")
 
 
 if __name__ == '__main__':
