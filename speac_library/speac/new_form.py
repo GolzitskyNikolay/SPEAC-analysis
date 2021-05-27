@@ -417,7 +417,17 @@ def reduce_out_close_calls(pattern_discovery, forms, meter, speac_settings):
 
 def combine(forms, meter, speac_settings):
     forms = copy.deepcopy(forms)
-    reduce_result = reduce_out_close_calls(forms[1], [forms[0]], meter, speac_settings)
+
+    reduce_result = []
+    if len(forms) == 1:
+        my_last_forms = forms[0]
+        butlast = []
+        reduce_result = reduce_out_close_calls(my_last_forms, butlast, meter, speac_settings)
+
+    elif len(forms) > 1:
+        my_last_forms = forms[1]
+        butlast = [forms[0]]
+        reduce_result = reduce_out_close_calls(my_last_forms, butlast, meter, speac_settings)
 
     input = []
     for element in forms[-1]:
