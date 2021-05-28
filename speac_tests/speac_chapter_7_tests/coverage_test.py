@@ -31,4 +31,4 @@ class CoverageTest(unittest.TestCase):
 
         cov.stop()
         cov.save()
-        cov.report(show_missing=True, include="*\\speac\\*")
+        cov.report(show_missing=True, include="*/speac/*")
