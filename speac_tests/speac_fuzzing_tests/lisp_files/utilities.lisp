@@ -355,26 +355,3 @@
   "Returns the first of the last."
   (first (last list)))
 
-;;;;;
-#|(allp '(1 2 3 4 5) '(3 4 1 2 5))
-t|#
-;;;;;
-
-(defun ALLP (first-list second-list)
-  "Checks to see if the two args are equivalent but in different order."
-  (cond ((and (null first-list)(null second-list)) t)
-        ((member (first first-list) second-list)
-         (allp (cdr first-list)(remove (first first-list) second-list :count 1)))
-        (t ())))
-
-;;;;;
-#|(setq a '(1 2))
-(1 2)
-(PUSH-REV 3 a)
-(1 2 3)|#
-;;;;;
-
-(defMacro PUSH-REV (thing target)
-  "Pushes thing into rear-end of target."
-  `(setq ,target (reverse (cons ,thing (reverse ,target)))))
-
