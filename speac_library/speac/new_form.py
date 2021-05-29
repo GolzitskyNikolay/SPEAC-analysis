@@ -299,7 +299,7 @@ def collect_patterns(list, lists, type, speac_settings):
 
 
 def almost_the_same_lists(lists, speac_settings):
-    types = ["a", "b", "c", "d", "e", "f", "g", "h," "i", "j", "k"]
+    types = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
     result = []
 
     while True:
