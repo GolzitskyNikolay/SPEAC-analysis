@@ -424,10 +424,12 @@ def my_last(some_list):
         return []
 
 
-def butlast(some_list):
+def butlast(some_list, number=1):
+    result = copy.deepcopy(some_list)
+
     try:
-        result = copy.deepcopy(some_list)
-        result.pop(len(some_list) - 1)
+        for i in range(1, number + 1):
+            result.pop(len(result) - 1)
         return result
     except IndexError:
         return []
