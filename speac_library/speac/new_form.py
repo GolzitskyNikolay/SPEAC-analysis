@@ -299,7 +299,7 @@ def collect_patterns(list, lists, type, speac_settings):
 
 
 def almost_the_same_lists(lists, speac_settings):
-    types = ["a", "b", "c", "d", "e", "f", "g", "h," "i", "j", "k"]
+    types = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
     result = []
 
     while True:
@@ -316,14 +316,14 @@ def almost_the_same_lists(lists, speac_settings):
             if len(types) != 0:
                 types_0 = types[0]
             else:
-                types_0 = None
+                types_0 = []
 
             result.append([types_0, lists[0][0], lists[0][1]])
 
             if len(types) != 0:
                 first_type = types.pop(0)
             else:
-                first_type = None
+                first_type = []
 
             lists.pop(0)
             lists = collect_patterns(list_0_before, lists, first_type, speac_settings)
@@ -359,7 +359,7 @@ def find_letters_used(form):
         form.pop(0)
 
 
-LETTERS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k," "l", "m",
+LETTERS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
            "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 
 
@@ -415,9 +415,30 @@ def reduce_out_close_calls(pattern_discovery, forms, meter, speac_settings):
             result.append(return_within_range(pattern_discovery, first_form, meter, speac_settings))
 
 
+def my_last(some_list):
+    try:
+        last = [some_list[-1]]
+        first_of_last = last[0]
+        return first_of_last
+    except IndexError:
+        return []
+
+
+def butlast(some_list, number=1):
+    result = copy.deepcopy(some_list)
+
+    try:
+        for i in range(1, number + 1):
+            result.pop(len(result) - 1)
+        return result
+    except IndexError:
+        return []
+
+
 def combine(forms, meter, speac_settings):
     forms = copy.deepcopy(forms)
-    reduce_result = reduce_out_close_calls(forms[1], [forms[0]], meter, speac_settings)
+
+    reduce_result = reduce_out_close_calls(my_last(forms), butlast(forms), meter, speac_settings)
 
     input = []
     for element in forms[-1]:
@@ -428,7 +449,8 @@ def combine(forms, meter, speac_settings):
             if e:
                 input.append(e)
 
-    used_letters = find_letters_used(forms[-1])
+    used_letters = find_letters_used(my_last(forms))
+    used_letters.reverse()
 
     alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
                 "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]

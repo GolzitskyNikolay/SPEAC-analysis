@@ -92,7 +92,26 @@ def find_matchings(pattern, patterns, speac_settings):
     translator_res_2 = interval_translator(translator_input)
 
     result = run_pattern_match(translator_res, translator_res_2, speac_settings)
+
     return result
+
+
+def firstn(number, some_list):
+    if len(some_list) < number:
+        return firstn(number - 1, some_list)
+    else:
+        return butlast(some_list, len(some_list) - number)
+
+
+def butlast(some_list, number=1):
+    result = copy.deepcopy(some_list)
+
+    try:
+        for i in range(1, number + 1):
+            result.pop(len(result) - 1)
+        return result
+    except IndexError:
+        return []
 
 
 def find_the_matches(work_1, work_2, speac_settings):
@@ -103,9 +122,9 @@ def find_the_matches(work_1, work_2, speac_settings):
             break
 
         else:
-            patterns = work_1[:speac_settings.PATTERN_SIZE]
+            patterns = firstn(speac_settings.PATTERN_SIZE, work_1)
             other_patterns = work_1[speac_settings.PATTERN_SIZE:]
-            test = find_matchings(patterns, work_2, speac_settings)
+            test = find_matchings(patterns, work_2, speac_settings)  # 17 паттерн не совпадает
 
             if test > speac_settings.THRESHOLD:
                 translator_input = []
@@ -121,8 +140,12 @@ def find_the_matches(work_1, work_2, speac_settings):
     return result
 
 
+def sort_by_first_element(some_list):
+    return some_list[0]
+
+
 def simple_matcher(events, speac_settings):
-    events.sort()
+    events.sort(key=sort_by_first_element)
     channel = get_channel(speac_settings.MATCHING_LINE, events)
     ordered_and_channeled_events = get_ontimes_and_pitches(channel)
     result = find_the_matches(ordered_and_channeled_events, ordered_and_channeled_events, speac_settings)
