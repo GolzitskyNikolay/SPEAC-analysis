@@ -179,9 +179,9 @@ def run_the_program(events, meter, speac_settings, get_not_to_speac=False):
     form = eval_combine_and_integrate_forms(events, meter, speac_settings)
 
     new_form = []
-    for elem in form:
-        if elem not in new_form:
-            new_form.append(elem)
+    for element in form:
+        if element not in new_form:
+            new_form.append(element)
     form = new_form
 
     second_elements = []
