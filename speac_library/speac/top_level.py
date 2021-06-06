@@ -6,16 +6,26 @@ from .speac_settings import SpeacSettings
 
 # (do-speac-on-phrases '(((0 55 1000 2 64) (0 65 1000 2 64). . .
 #     ((("preparation" "extension" "extension" "extension" "preparation" . . .
-def do_speac_on_phrases(phrases, meter):
+def do_speac_on_phrases(phrases, meter, note_to_speac=[]):
     result = []
     phrases_copy = copy.deepcopy(phrases)
 
-    for phrase in phrases_copy:
+    for i in range(1, len(phrases_copy) + 1):
+        phrase = phrases_copy[i - 1]
         start_beat_number = get_the_start_beat_number(phrase, meter)
         round_number = round(get_length(phrase) / 1000)
         weights = run_the_speac_weightings(phrase, start_beat_number, round_number, meter)
+        if note_to_speac:
+            note_to_speac[i - 1] = collect_beat_lists(break_at_each_entrance(note_to_speac[i - 1]))
+
         avg = my_round(sum(weights) / len(weights))
+
         speac_res = run_speac(weights, avg)
+
+        if note_to_speac:
+            for k in range(1, len(speac_res) + 1):
+                note_to_speac[i - 1][k - 1].append(speac_res[k - 1])
+
         local_res = [speac_res, avg]
         result.append(local_res)
 
@@ -60,6 +70,7 @@ def get_events_from(time, events):
 
 
 def break_into_phrases(events, timings):
+    timings = copy.deepcopy(timings)
     events_copy = copy.deepcopy(events)
     result = []
 
@@ -75,6 +86,7 @@ def break_into_phrases(events, timings):
 
 def group_speac_lists(speac_lists, grouped_form):
     speac_lists = copy.deepcopy(speac_lists)
+    grouped_form = copy.deepcopy(grouped_form)
     result = []
 
     while True:
@@ -114,10 +126,17 @@ def group_them(form):
                 return result
 
 
-def get_speac_middleground(speac_lists, grouped_form):
+def get_speac_middleground(speac_lists, grouped_form, note_to_speac=[]):
     grouped_speac_lists = group_speac_lists(speac_lists, grouped_form)
+
+    if note_to_speac:
+        new_note_to_speac = group_speac_lists(note_to_speac, grouped_form)
+        note_to_speac.clear()
+        note_to_speac.append(new_note_to_speac)
+
     result = []
-    for phrase in grouped_speac_lists:
+    for i in range(1, len(grouped_speac_lists) + 1):
+        phrase = grouped_speac_lists[i - 1]
         test = []
         for e in phrase:
             test.append(e[-1])
@@ -128,24 +147,42 @@ def get_speac_middleground(speac_lists, grouped_form):
 
         test_average = my_round(sum / len(test))
         speac_result = run_speac(test, test_average)
+        if note_to_speac:
+            for k in range(1, len(speac_result) + 1):
+                note_to_speac[0][i - 1][k - 1].append(speac_result)
+
         result.append([speac_result, test_average])
 
     return result
 
 
-def get_speac_background(speac_middleground):
+def get_speac_background(speac_middleground, note_to_speac=[]):
     test = []
+
+
     for element in speac_middleground:
         test.append(element[-1])
     avg = my_round(sum(test) / len(test))
     speac_res = run_speac(test, avg)
+
+    if note_to_speac:
+        for i in range(1, len(speac_res) + 1):
+            note_to_speac[i - 1].append(speac_res[i - 1])
+
     result = [speac_res, avg]
     return result
 
 
-def run_the_program(events, meter, speac_settings):
+def run_the_program(events, meter, speac_settings, get_not_to_speac=False):
     events = copy.deepcopy(events)
+
     form = eval_combine_and_integrate_forms(events, meter, speac_settings)
+
+    new_form = []
+    for elem in form:
+        if elem not in new_form:
+            new_form.append(elem)
+    form = new_form
 
     second_elements = []
     for i in range(1, len(form)):
@@ -153,15 +190,28 @@ def run_the_program(events, meter, speac_settings):
 
     phrased_events = break_into_phrases(events, second_elements)
 
-    speac_phrase_lists = do_speac_on_phrases(phrased_events, meter)
+    if get_not_to_speac:
+        note_to_speac = break_into_phrases(copy.deepcopy(events), second_elements)
+    else:
+        note_to_speac = []
 
-    speac_middleground = get_speac_middleground(speac_phrase_lists, group_form(form))
+    speac_phrase_lists = do_speac_on_phrases(phrased_events, meter, note_to_speac)
 
-    speac_background = get_speac_background(speac_middleground)
+    speac_middleground = get_speac_middleground(speac_phrase_lists, group_form(form), note_to_speac)
 
-    ursatz = get_speac_background([speac_background])
+    if get_not_to_speac:
+        note_to_speac = note_to_speac[0]
 
-    return [ursatz, speac_background, speac_middleground, speac_phrase_lists, form]
+    speac_background = get_speac_background(speac_middleground, note_to_speac)
+
+    ursatz = get_speac_background([speac_background], note_to_speac)
+    if get_not_to_speac:
+        note_to_speac = [note_to_speac, ursatz[0][0]]
+
+    if get_not_to_speac:
+        return note_to_speac
+    else:
+        return [ursatz, speac_background, speac_middleground, speac_phrase_lists, form]
 
 
 def number_the_elements(levels):
@@ -222,6 +272,52 @@ def create_the_window_levels(levels_from_the_program):
     return result
 
 
-def get_the_levels(events, meter, speac_settings=SpeacSettings()):
-    output = run_the_program(events, meter, speac_settings=speac_settings)
-    return number_the_elements(create_the_window_levels(output))
+def get_the_levels(events, meter, speac_settings=SpeacSettings(), note_to_speac=False):
+    output = run_the_program(events, meter, speac_settings, note_to_speac)
+
+    if note_to_speac:
+        return output
+    else:
+        return number_the_elements(create_the_window_levels(output))
+
+
+def get_note_and_speac(events, meter, speac_settings=SpeacSettings()):
+    result = get_the_levels(events, meter, speac_settings, True)
+
+    notes_and_speac = []
+
+    for e in range(1, len(result[0]) + 1):
+        element = result[0][e - 1]
+        middleground_index = 0
+
+        for i in range(1, len(element)):
+            background = element[-1]
+
+            if i < len(element):
+                phrases = element[i - 1]
+                middlegrounds = phrases[-1]
+
+                for j in range(1, len(phrases) + 1):
+                    phrase = phrases[j - 1]
+
+                    if isinstance(phrase[-1], str):
+                        foreground = phrase[-1]
+                    else:
+                        foreground = None  # don't know why, but nothing (Cope's function map_add)
+
+                    if isinstance(phrase[0], str):
+                        middleground_index += 1
+
+                    else:
+                        for l in range(1, len(phrase)):
+                            events = phrase[l - 1]
+
+                            for p in range(1, len(events) + 1):
+                                event = events[p - 1]
+                                new_event = event[:5]
+                                new_event.append(foreground)
+                                new_event.append(middlegrounds[middleground_index])
+                                new_event.append(background)
+                                notes_and_speac.append(new_event)
+
+    return notes_and_speac
