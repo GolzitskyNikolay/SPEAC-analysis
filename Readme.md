@@ -6,7 +6,7 @@
 --------------------------------------
 
 ### INSTALLATION
-To install the spec, run `pip install speac` 
+To install the speac, run `pip install speac` 
 
 --------------------------------------
 
