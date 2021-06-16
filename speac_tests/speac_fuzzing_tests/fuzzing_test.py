@@ -83,7 +83,7 @@ class BindingsTest(unittest.TestCase):
         threshold = speac_settings.THRESHOLD
         pattern_size = speac_settings.PATTERN_SIZE
         amount_off = speac_settings.AMOUNT_OFF
-        matching_line = speac_settings.MATCHING_LINE  # differs when 2, fix it later
+        matching_line = speac_settings.MATCHING_LINE
 
         speac_settings = SpeacSettings()
         speac_settings.set_beat(beat)
