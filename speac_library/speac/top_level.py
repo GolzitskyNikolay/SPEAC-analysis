@@ -303,7 +303,7 @@ def get_note_and_speac(events, meter, speac_settings=SpeacSettings()):
                     if isinstance(phrase[-1], str):
                         foreground = phrase[-1]
                     else:
-                        foreground = None  # don't know why, but nothing (Cope's function map_add)
+                        foreground = None  
 
                     if isinstance(phrase[0], str):
                         middleground_index += 1
