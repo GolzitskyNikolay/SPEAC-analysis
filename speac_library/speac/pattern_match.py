@@ -124,7 +124,7 @@ def find_the_matches(work_1, work_2, speac_settings):
         else:
             patterns = firstn(speac_settings.PATTERN_SIZE, work_1)
             other_patterns = work_1[speac_settings.PATTERN_SIZE:]
-            test = find_matchings(patterns, work_2, speac_settings)  # 17 паттерн не совпадает
+            test = find_matchings(patterns, work_2, speac_settings) 
 
             if test > speac_settings.THRESHOLD:
                 translator_input = []
