@@ -37,7 +37,7 @@ get_the_levels(events, meter)
  <img src="https://github.com/GolzitskyNikolay/SPEAC_analysis/blob/master/img/2.PNG" width="700">
 
 Also, to change the default settings, you need to use the class ***`SpeacSettings`***. 
-Нou need to give an object of this class as the third argument of this function.
+You need to give an object of this class as the third argument of this function.
 
 Example:
  ```Python
