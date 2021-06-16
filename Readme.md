@@ -15,7 +15,10 @@ SPEAC analysis is a hierarchical analysis in which music is considered as a seri
 The result of this function is a list of SPEAC analyzes of different levels, first element of the list is the global analysis (ursatz in Schenker's terms), second element of the list is the large analysis (background), third - is the middle analysis (middleground), last - is foreground.
 
 The function accepts a list of events as input, where each event includes the time the note was pressed in milliseconds, the midi number of the note, the duration (1000 - quarter, 500 - the eighth, etc.), the number of the part or instrument, and the velocity of the note:
+
+
 <img src="https://github.com/GolzitskyNikolay/SPEAC_analysis/blob/master/img/1.PNG" width="450">
+
 
 It is also worth noting that these events in the list are sorted by the time they were turned on, and in these events ***all trills and mordents should be deleted***.
 The analysis can be started as follows:
