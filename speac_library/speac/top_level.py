@@ -4,9 +4,84 @@ from .speac import *
 from .speac_settings import SpeacSettings
 
 
-# (do-speac-on-phrases '(((0 55 1000 2 64) (0 65 1000 2 64). . .
-#     ((("preparation" "extension" "extension" "extension" "preparation" . . .
+def get_the_levels(events, meter, speac_settings=SpeacSettings(), note_to_speac=False):
+    """ Performs SPEAC analysis, for a given piece of music, returns hierarchical markup:
+    ursatz, background, middlegrounnd, foreground
+
+    :param events: list of events presented in the format: [start beat, midi, duration, channel, velocity]
+    :param meter: dimension of a piece of music (signature)
+    :param speac_settings: SPEAC-analysis settings
+    :param note_to_speac: a flag that allows markup for each event in the list
+    """
+
+    output = run_the_program(events, meter, speac_settings, note_to_speac)
+
+    if note_to_speac:
+        return output
+    else:
+        return number_the_elements(create_the_window_levels(output))
+
+
+def get_note_and_speac(events, meter, speac_settings=SpeacSettings()):
+    """ Performs SPEAC analysis, for each event it indicates which character set it belongs to.
+    For this, 3 characters are written to each event: foreground, middleground, background
+
+    :param events: list of events presented in the format: [start beat, midi, duration, channel, velocity]
+    :param meter: dimension of a piece of music (signature)
+    :param speac_settings: SPEAC-analysis settings
+
+    Example: events[0] = [0, 62, 1000, 2, 55]
+             result[0] = [0, 62, 1000, 2, 55, 'statement', 'antecedent', 'statement']
+    """
+
+    result = get_the_levels(events, meter, speac_settings, True)
+
+    notes_and_speac = []
+
+    for e in range(1, len(result[0]) + 1):
+        element = result[0][e - 1]
+        middleground_index = 0
+
+        for i in range(1, len(element)):
+            background = element[-1]
+
+            if i < len(element):
+                phrases = element[i - 1]
+                middlegrounds = phrases[-1]
+
+                for j in range(1, len(phrases) + 1):
+                    phrase = phrases[j - 1]
+
+                    if isinstance(phrase[-1], str):
+                        foreground = phrase[-1]
+                    else:
+                        foreground = None
+
+                    if isinstance(phrase[0], str):
+                        middleground_index += 1
+
+                    else:
+                        for l in range(1, len(phrase)):
+                            events = phrase[l - 1]
+
+                            for p in range(1, len(events) + 1):
+                                event = events[p - 1]
+                                new_event = event[:5]
+                                new_event.append(foreground)
+                                new_event.append(middlegrounds[middleground_index])
+                                new_event.append(background)
+                                notes_and_speac.append(new_event)
+
+    return notes_and_speac
+
+
 def do_speac_on_phrases(phrases, meter, note_to_speac=[]):
+    """Converts a list of events to a list of SPEAC-states.
+
+    Example: phrases =  [[0, 55, 1000, 2, 64], [0, 65, 1000, 2, 64]...
+             result  = ((("preparation" "extension" "extension" "extension" "preparation"...
+    """
+
     result = []
     phrases_copy = copy.deepcopy(phrases)
 
@@ -32,24 +107,34 @@ def do_speac_on_phrases(phrases, meter, note_to_speac=[]):
     return result
 
 
-# (get-length '((0 55 1000 2 64) (0 65 1000 2 64) (1000 71 1500 2 64)))
-# 2500
 def get_length(events):
+    """ Counts the duration of a phrase
+
+    Example: events = [[0, 55, 1000, 2, 64], [0, 65, 1000, 2, 64], [1000, 71, 1500, 2, 64]]
+             result = 2500
+    """
     last_event = events[-1]
     return last_event[0] + last_event[2] - events[0][0]
 
 
-# (get-the-start-beat-numbe '((21000 55 1000 2 64) . . . 3))
-#   1
 def get_the_start_beat_number(events, meter):
+    """ Returns the start beat number
+
+        Example: events = [[21000, 55, 1000, 2, 64] ...]
+                 result = 1
+    """
+
     onbeat = round(events[0][0] / 1000)
     return onbeat % meter + 1
 
 
-# Returns all those events whose ontime is before time
-# (get-events-to 1500 '((0 5 23 23 23) (0 12 12 12 12) (500 12 12 12 12) (1600 12 12 12 12)))
-# ((0 5 23 23 23) (0 12 12 12 12) (500 12 12 12 12))
 def get_events_to(time, events):
+    """Returns all those events whose ontime is before time
+
+    Example: events = [[0, 1, 2, 3, 4], [0, 22, 33, 44, 55], [500, 1, 2, 3, 4], [600, 1, 2, 3, 4]]
+             time = 500
+             result = [[0, 1, 2, 3, 4], [0, 22, 33, 44, 55]]
+    """
     result = []
     for event in events:
         if event[0] < time:
@@ -58,6 +143,12 @@ def get_events_to(time, events):
 
 
 def get_events_from(time, events):
+    """Returns all those events whose ontime is after time
+
+    Example: time = 1000
+             events = [[0, 23, 500, 1, 55], [0, 28, 500, 1, 55], [1000, 45, 1000, 2, 56], [2500, 23, 500, 2, 34]]
+             result = [[1000, 45, 1000, 2, 56], [2500, 23, 500, 2, 34]]
+    """
     result = []
 
     while True:
@@ -70,6 +161,8 @@ def get_events_from(time, events):
 
 
 def break_into_phrases(events, timings):
+    """ Breaks into phrases"""
+
     timings = copy.deepcopy(timings)
     events_copy = copy.deepcopy(events)
     result = []
@@ -85,6 +178,8 @@ def break_into_phrases(events, timings):
 
 
 def group_speac_lists(speac_lists, grouped_form):
+    """Groups speac lists"""
+
     speac_lists = copy.deepcopy(speac_lists)
     grouped_form = copy.deepcopy(grouped_form)
     result = []
@@ -158,7 +253,6 @@ def get_speac_middleground(speac_lists, grouped_form, note_to_speac=[]):
 
 def get_speac_background(speac_middleground, note_to_speac=[]):
     test = []
-
 
     for element in speac_middleground:
         test.append(element[-1])
@@ -270,54 +364,3 @@ def create_the_window_levels(levels_from_the_program):
 
         result.append(mini_res)
     return result
-
-
-def get_the_levels(events, meter, speac_settings=SpeacSettings(), note_to_speac=False):
-    output = run_the_program(events, meter, speac_settings, note_to_speac)
-
-    if note_to_speac:
-        return output
-    else:
-        return number_the_elements(create_the_window_levels(output))
-
-
-def get_note_and_speac(events, meter, speac_settings=SpeacSettings()):
-    result = get_the_levels(events, meter, speac_settings, True)
-
-    notes_and_speac = []
-
-    for e in range(1, len(result[0]) + 1):
-        element = result[0][e - 1]
-        middleground_index = 0
-
-        for i in range(1, len(element)):
-            background = element[-1]
-
-            if i < len(element):
-                phrases = element[i - 1]
-                middlegrounds = phrases[-1]
-
-                for j in range(1, len(phrases) + 1):
-                    phrase = phrases[j - 1]
-
-                    if isinstance(phrase[-1], str):
-                        foreground = phrase[-1]
-                    else:
-                        foreground = None  
-
-                    if isinstance(phrase[0], str):
-                        middleground_index += 1
-
-                    else:
-                        for l in range(1, len(phrase)):
-                            events = phrase[l - 1]
-
-                            for p in range(1, len(events) + 1):
-                                event = events[p - 1]
-                                new_event = event[:5]
-                                new_event.append(foreground)
-                                new_event.append(middlegrounds[middleground_index])
-                                new_event.append(background)
-                                notes_and_speac.append(new_event)
-
-    return notes_and_speac
